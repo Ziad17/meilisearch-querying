@@ -108,7 +108,7 @@ namespace FluentSearchEngine.GenericEvaluators
             if (!hasCoordinate)
                 throw new GeoFilterException("must use the geo model");
 
-            this.Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower($"_geoRadius({centerLat:#.000000},{centerLon:#.000000},{radiusInMeters})"));
+            this.Filter.Append($"_geoRadius({centerLat:#.000000},{centerLon:#.000000},{radiusInMeters})");
 
             return this;
 
