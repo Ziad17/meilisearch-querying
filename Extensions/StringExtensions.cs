@@ -18,16 +18,16 @@ namespace FluentSearchEngine.Extensions
             return originalText;
         }
 
-        public static IEvaluator<T> Like<T>(this IStringsEvaluator<T> value, string text)
+        public static IValue<T> Like<T>(this IStringsEvaluator<T> value, string text)
         {
             value.Filter.Append(AddWhiteSpaceBeforeToLower($"LIKE '{text}'"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
 
-        public static IEvaluator<T> ExactSame<T>(this IStringsEvaluator<T> value, string text)
+        public static IValue<T> ExactSame<T>(this IStringsEvaluator<T> value, string text)
         {
             value.Filter.Append(AddWhiteSpaceBeforeToLower($"= '{text}'"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
     }
 }

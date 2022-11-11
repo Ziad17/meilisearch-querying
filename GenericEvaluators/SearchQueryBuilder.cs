@@ -5,69 +5,121 @@ using FluentSearchEngine.Model;
 using FluentSearchEngine.Paging;
 using Meilisearch;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace FluentSearchEngine.GenericEvaluators
 {
     public class SearchQueryBuilder<T> :
+        FilterBase,
         INumbersEvaluator<T>,
         IStringsEvaluator<T>,
         IBooleanEvaluator<T>,
-        IEvaluator<T>,
         IValue<T>
     {
-        public StringBuilder Filter { get; set; } = new StringBuilder();
-        public List<string> Sort { get; set; } = new List<string>();
+        public List<string> Sort { get; set; } = new();
         public string Term { get; set; }
 
-        public SearchQueryBuilder(string term)
+        public SearchQueryBuilder(string term = "")
         {
             Term = term;
         }
-        public IBooleanEvaluator<T> Value(Expression<Func<T, bool>> action)
+
+        private void AppendAddLiteralText<TKey>(Expression<Func<T, TKey>> action)
         {
             var body = (MemberExpression)action.Body;
             var propertyName = body.Member.Name;
 
-            Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower(propertyName));
+            Filter.Append($" AND {propertyName.FirstCharToLowerCase()}");
+        }
+
+        private void AppendOrLiteralText<TKey>(Expression<Func<T, TKey>> action)
+        {
+            var body = (MemberExpression)action.Body;
+            var propertyName = body.Member.Name;
+
+            Filter.Append($" OR {propertyName.FirstCharToLowerCase()}");
+        }
+
+        private void AppendLiteralText<TKey>(Expression<Func<T, TKey>> action)
+        {
+            var body = (MemberExpression)action.Body;
+            var propertyName = body.Member.Name;
+
+            Filter.Append($"{propertyName.FirstCharToLowerCase()}");
+        }
+
+        public IBooleanEvaluator<T> And(Expression<Func<T, bool>> action)
+        {
+            AppendAddLiteralText(action);
             return this;
         }
 
-        public INumbersEvaluator<T> Value(Expression<Func<T, int>> action)
+        public INumbersEvaluator<T> And(Expression<Func<T, int>> action)
         {
-            var body = (MemberExpression)action.Body;
-            var propertyName = body.Member.Name;
+            AppendAddLiteralText(action);
+            return this;
+        }
 
-            Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower(propertyName));
+        public IStringsEvaluator<T> And(Expression<Func<T, string>> action)
+        {
+            AppendAddLiteralText(action);
+            return this;
+        }
+
+        public IBooleanEvaluator<T> Or(Expression<Func<T, bool>> action)
+        {
+            AppendOrLiteralText(action);
+            return this;
+        }
+
+        public INumbersEvaluator<T> Or(Expression<Func<T, int>> action)
+        {
+            AppendOrLiteralText(action);
+            return this;
+        }
+
+        public IStringsEvaluator<T> Or(Expression<Func<T, string>> action)
+        {
+            AppendOrLiteralText(action);
             return this;
         }
         public IStringsEvaluator<T> Value(Expression<Func<T, string>> action)
         {
-            var body = (MemberExpression)action.Body;
-            var propertyName = body.Member.Name;
-
-            Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower(propertyName));
-
+            AppendLiteralText(action);
+            return this;
+        }
+        public IBooleanEvaluator<T> Value(Expression<Func<T, bool>> action)
+        {
+            AppendLiteralText(action);
+            return this;
+        }
+        public INumbersEvaluator<T> Value(Expression<Func<T, int>> action)
+        {
+            AppendLiteralText(action);
             return this;
         }
 
-        public SearchQuery Evaluate(PageCriteria? criteria = default)
+
+
+        public SearchQuery Evaluate(PageCriteria criteria)
         {
-            var searchQuery = new SearchQuery();
-
-            if (criteria != null)
+            var searchQuery = new SearchQuery
             {
-                searchQuery.Limit = criteria.PageSize;
-                searchQuery.Offset = (criteria.PageNumber - 1) * criteria.PageSize;
-            }
+                Limit = criteria.PageSize,
+                Offset = (criteria.PageNumber - 1) * criteria.PageSize,
+                Filter = Filter.ToString().Trim(),
+                Q = Term.Trim()
+            };
 
-            searchQuery.Filter = Filter.ToString().Trim();
-            searchQuery.Q = Term.Trim();
             if (Sort.Any())
                 searchQuery.Sort = Sort;
 
 
             return searchQuery;
+        }
+
+        public SearchQuery Evaluate(int pageNumber = 1, int pageSize = 10)
+        {
+            return Evaluate(new PageCriteria(1, 10));
         }
 
         public SearchQueryBuilder<T> OrderBy<TSort>(Expression<Func<T, TSort>> action)
@@ -86,21 +138,6 @@ namespace FluentSearchEngine.GenericEvaluators
             return this;
         }
 
-        public IValue<T> And()
-        {
-            this.Filter.Append((" AND"));
-            return this;
-
-        }
-
-        public IValue<T> Or()
-        {
-            this.Filter.Append((" OR"));
-
-            return this;
-        }
-
-
         public SearchQueryBuilder<T> WithinRadius(double centerLat, double centerLon, int radiusInMeters)
         {
             var hasCoordinate = typeof(T).GetProperties().Any(x => x.PropertyType == typeof(GeoCoordinates));
@@ -111,8 +148,6 @@ namespace FluentSearchEngine.GenericEvaluators
             this.Filter.Append($"_geoRadius({centerLat:#.000000},{centerLon:#.000000},{radiusInMeters})");
 
             return this;
-
-
         }
 
 
