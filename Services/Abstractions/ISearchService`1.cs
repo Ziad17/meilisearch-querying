@@ -1,10 +1,12 @@
 ﻿using Meilisearch;
+using Index = Meilisearch.Index;
 
 namespace FluentSearchEngine.Services.Abstraction
 {
     public interface ISearchService<T>
         where T : class
     {
+        public Index GetIndex();
         public Task<bool> AddAsync(List<T> entities, CancellationToken cancellationToken = default);
 
         public Task<bool> AddAsync(T entity, CancellationToken cancellationToken = default);

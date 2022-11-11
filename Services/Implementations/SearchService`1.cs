@@ -23,6 +23,11 @@ namespace FluentSearchEngine.Services.Implementations
             return result.Status == TaskInfoStatus.Succeeded;
         }
 
+        public Index GetIndex()
+        {
+            return _index;
+        }
+
         public async Task<bool> AddAsync(List<T> entities, CancellationToken cancellationToken = default)
         {
             var result = await _index.AddDocumentsAsync(entities, cancellationToken: cancellationToken);

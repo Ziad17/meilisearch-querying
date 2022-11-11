@@ -5,42 +5,42 @@ namespace FluentSearchEngine.Extensions
 {
     public static class NumericExtensions
     {
-        public static IEvaluator<T> IsEqual<T>(this INumbersEvaluator<T> value, decimal number)
+        public static IValue<T> IsEqual<T>(this INumbersEvaluator<T> value, decimal number)
         {
             value.Filter.Append(
                 StringExtensions.AddWhiteSpaceBeforeToLower($"= {number.ToString(CultureInfo.InvariantCulture)}"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
-        public static IEvaluator<T> IsNotEqual<T>(this INumbersEvaluator<T> value, int number)
+        public static IValue<T> IsNotEqual<T>(this INumbersEvaluator<T> value, int number)
         {
             value.Filter.Append(
                 StringExtensions.AddWhiteSpaceBeforeToLower($"!= {number.ToString(CultureInfo.InvariantCulture)}"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
-        public static IEvaluator<T> GreaterThan<T>(this INumbersEvaluator<T> value, int number)
+        public static IValue<T> GreaterThan<T>(this INumbersEvaluator<T> value, int number)
         {
             value.Filter.Append(
                 StringExtensions.AddWhiteSpaceBeforeToLower($"> {number.ToString(CultureInfo.InvariantCulture)}"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
-        public static IEvaluator<T> GreaterThanOrEquals<T>(this INumbersEvaluator<T> value, int number)
+        public static IValue<T> GreaterThanOrEquals<T>(this INumbersEvaluator<T> value, int number)
         {
             value.Filter.Append(
                 StringExtensions.AddWhiteSpaceBeforeToLower($">= {number.ToString(CultureInfo.InvariantCulture)}"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
 
-        public static IEvaluator<T> LowerThanOrEquals<T>(this INumbersEvaluator<T> value, int number)
+        public static IValue<T> LowerThanOrEquals<T>(this INumbersEvaluator<T> value, int number)
         {
             value.Filter.Append(
                 StringExtensions.AddWhiteSpaceBeforeToLower($"<= {number.ToString(CultureInfo.InvariantCulture)}"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
-        public static IEvaluator<T> LowerThan<T>(this INumbersEvaluator<T> value, int number)
+        public static IValue<T> LowerThan<T>(this INumbersEvaluator<T> value, int number)
         {
             value.Filter.Append(
                 StringExtensions.AddWhiteSpaceBeforeToLower($"< {number.ToString(CultureInfo.InvariantCulture)}"));
-            return (IEvaluator<T>)value;
+            return (IValue<T>)value;
         }
     }
 }

@@ -6,7 +6,7 @@ namespace FluentSearchEngine.Model
     public class GeoSearchModel<TKey> : SearchModel<TKey> where TKey : struct
     {
         [SearchFilter]
-        [JsonPropertyName("GeoCoordinates")]
+        [JsonPropertyName("_geo")]
         public GeoCoordinates GeoCoordinates { get; set; }
 
         public GeoCoordinates GetCoordinates()
