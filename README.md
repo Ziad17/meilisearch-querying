@@ -1,4 +1,4 @@
-# FluentSearchEngine
+# FluentQuerying
 
 ## A fluent API that serves as a string builder to provide searching, filtering and sorting capability with using the amazing [MeiliSearch]((https://github.com/meilisearch/meilisearch))
 
@@ -70,10 +70,15 @@ public class Employee : GeoSearchModel<Guid>
 - ### Simple  Client Usage
 
   ```c#
-  MeilisearchClient client = new MeilisearchClient("http://host_name:7700", "4ebc913589554d17acea2ee981287a26");
+  //initiate the client
+  var client = new MeilisearchClient("http://localhost:7700", "4ebc913989554d17acea2ee981287a26");
   
+  //resolve usage of both SearchFilter and Sortable attributes 
+  client.ResolveFluentFiltersFromAssembly(AppDomain.CurrentDomain.GetAssemblies());
+  
+  //inject the client
+  builder.Services.AddSingleton(client);
   var searchService = new SearchService<Employee>(client);
-  
   
   var searchQuery = new SearchQueryBuilder<Employee>("John") //can discard the search term
       .OrderByDesc(x => x.Age) //Sorting Fields
@@ -95,19 +100,20 @@ public class Employee : GeoSearchModel<Guid>
   Install-Package FluentSearchEngine
   ```
 
-  appSettings.json
-
-  ```json
-  "SearchEngine": {
-      "HostUrl": "http://host_name:7700",
-      "ApiKey": "4ebc913589554d17acea2ee981287a26"
-    }
-  ```
-
   Program.cs
 
   ```c#
-  services.AddFluentSearchEngine();
+  //initiate the client
+  var client = new MeilisearchClient("http://localhost:7700", "4ebc913989554d17acea2ee981287a26");
+  
+  //add usage for SearchService<T>
+  builder.Services.AddGenericSearchService();
+  
+  //resolve usage of both SearchFilter and Sortable attributes 
+  client.ResolveFluentFiltersFromAssembly(AppDomain.CurrentDomain.GetAssemblies());
+  
+  //inject the client
+  builder.Services.AddSingleton(client);
   ```
 
   EmployeesController.cs
@@ -142,6 +148,8 @@ public class Employee : GeoSearchModel<Guid>
           }
       }
   ```
+
+
   
   ![image](https://user-images.githubusercontent.com/36865821/201401382-da52a451-228d-407b-aa44-1f27e76308ed.png)
 
