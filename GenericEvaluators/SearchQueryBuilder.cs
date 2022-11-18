@@ -13,6 +13,7 @@ namespace FluentSearchEngine.GenericEvaluators
         INumbersEvaluator<T>,
         IStringsEvaluator<T>,
         IBooleanEvaluator<T>,
+        IDateTimeEvaluator<T>,
         IValue<T>
     {
         public List<string> Sort { get; set; } = new();

@@ -1,11 +1,9 @@
 ﻿using FluentSearchEngine.Attributes;
-using FluentSearchEngine.Configurations;
 using FluentSearchEngine.Extensions;
 using FluentSearchEngine.Services.Abstraction;
 using FluentSearchEngine.Services.Implementations;
 using Humanizer;
 using Meilisearch;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -14,17 +12,9 @@ namespace FluentSearchEngine
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddFluentSearchEngine(this IServiceCollection services)
+        public static void ResolveFluentFiltersFromAssembly(this MeilisearchClient client, params Assembly[] assemblies)
         {
-            var provider = services.BuildServiceProvider();
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            var searchEngineConfiguration = new SearchEngineConfiguration();
-            configuration.Bind("SearchEngine", searchEngineConfiguration);
-            MeilisearchClient client = new MeilisearchClient(searchEngineConfiguration.HostUrl, searchEngineConfiguration.ApiKey);
-            services.AddSingleton(client);
-            services.AddScoped(typeof(ISearchService<>), typeof(SearchService<>));
-
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(x => x.BaseType != null && (x.BaseType!.Name == "SearchModel`1" || x.BaseType!.Name == "GeoSearchModel`1") && x.Name != "GeoSearchModel`1");
+            var types = assemblies.SelectMany(s => s.GetTypes()).Where(x => x.BaseType != null && (x.BaseType!.Name == "SearchModel`1" || x.BaseType!.Name == "GeoSearchModel`1") && x.Name != "GeoSearchModel`1");
 
             foreach (var type in types)
             {
@@ -65,8 +55,11 @@ namespace FluentSearchEngine
                     index.UpdateFilterableAttributesAsync(filterableProperties);
                 }
             }
+        }
 
-            return services;
+        public static void AddGenericSearchService(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(ISearchService<>), typeof(SearchService<>));
         }
     }
 }
