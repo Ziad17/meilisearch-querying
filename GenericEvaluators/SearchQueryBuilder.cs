@@ -26,37 +26,37 @@ namespace FluentSearchEngine.GenericEvaluators
 
         public IStringsEvaluator<T> Value(Expression<Func<T, string>> action)
         {
-            AppendLiteralText(action);
+            AppendFilterLiteralText(action);
             return this;
         }
 
         public ICollectionEvaluator<T> Value<TData>(Expression<Func<T, ICollection<TData>>> action)
         {
-            AppendLiteralText(action);
+            AppendFilterLiteralText(action);
             return this;
         }
 
         public IBooleanEvaluator<T> Value(Expression<Func<T, bool>> action)
         {
-            AppendLiteralText(action);
+            AppendFilterLiteralText(action);
             return this;
         }
 
         public INumbersEvaluator<T> Value(Expression<Func<T, int>> action)
         {
-            AppendLiteralText(action);
+            AppendFilterLiteralText(action);
             return this;
         }
 
         public INumbersEvaluator<T> Value(Expression<Func<T, double>> action)
         {
-            AppendLiteralText(action);
+            AppendFilterLiteralText(action);
             return this;
         }
 
         public INumbersEvaluator<T> Value(Expression<Func<T, decimal>> action)
         {
-            AppendLiteralText(action);
+            AppendFilterLiteralText(action);
             return this;
         }
 
@@ -111,7 +111,13 @@ namespace FluentSearchEngine.GenericEvaluators
 
         public SearchQueryBuilder<T> Where(string clause)
         {
-            AppendLiteralText(clause);
+            AppendFilterLiteralText(clause);
+            return this;
+        }
+
+        public SearchQueryBuilder<T> Order(string order)
+        {
+            Sort.Add(order);
             return this;
         }
 
@@ -127,7 +133,24 @@ namespace FluentSearchEngine.GenericEvaluators
             return this;
         }
 
-        private void AppendLiteralText<TKey>(Expression<Func<T, TKey>> action)
+        public SearchQueryBuilder<T> WithGeoSort(string latitude, string longitude, bool ascending = true)
+        {
+            if (latitude == null || longitude == null)
+                return this;
+
+            var hasCoordinate = typeof(T).GetProperties().Any(x => x.PropertyType == typeof(GeoCoordinates));
+
+            if (!hasCoordinate)
+                throw new GeoFilterException("must use the geo model");
+
+            var direction = ascending ? "asc" : "desc";
+
+            Sort.Add($"_geoPoint({latitude},{longitude}):{direction}");
+
+            return this;
+        }
+
+        private void AppendFilterLiteralText<TKey>(Expression<Func<T, TKey>> action)
         {
             var body = (MemberExpression)action.Body;
             var propertyName = body.Member.Name;
@@ -136,7 +159,7 @@ namespace FluentSearchEngine.GenericEvaluators
             Filter.Append($"{propertyName.FirstCharToLower()}");
         }
 
-        private void AppendLiteralText(string clause)
+        private void AppendFilterLiteralText(string clause)
         {
             if (Filter.Length != 0)
                 Filter.Append(" AND ");
