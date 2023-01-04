@@ -1,4 +1,4 @@
-﻿using FluentSearchEngine.Services.Abstraction;
+﻿using FluentSearchEngine.Services.Abstractions;
 using Humanizer;
 using Meilisearch;
 using Index = Meilisearch.Index;
@@ -9,43 +9,41 @@ namespace FluentSearchEngine.Services.Implementations
         where T : class
     {
         public readonly MeilisearchClient Client;
-        public readonly Index _index;
+        public readonly Index Index;
 
         public SearchService(MeilisearchClient client)
         {
             Client = client;
-            _index = client.Index(typeof(T).Name.Pluralize());
+            Index = client.Index(typeof(T).Name.Pluralize());
         }
 
-        public async Task<bool> AddAsync(T entity, CancellationToken cancellationToken = default)
+        public async Task<bool> AddOrUpdateAsync(T entity, CancellationToken cancellationToken = default)
         {
-            var result = await _index.AddDocumentsAsync(new List<T>() { entity }, cancellationToken: cancellationToken);
+            var result = await Index.AddDocumentsAsync(new List<T>() { entity }, cancellationToken: cancellationToken);
             return result.Status == TaskInfoStatus.Succeeded;
         }
 
         public Index GetIndex()
         {
-            return _index;
+            return Index;
         }
 
-        public async Task<bool> AddAsync(List<T> entities, CancellationToken cancellationToken = default)
+        public async Task<bool> AddOrUpdateAsync(List<T> entities, CancellationToken cancellationToken = default)
         {
-            var result = await _index.AddDocumentsAsync(entities, cancellationToken: cancellationToken);
+            var result = await Index.AddDocumentsAsync(entities, cancellationToken: cancellationToken);
             return result.Status == TaskInfoStatus.Succeeded;
         }
 
         public async Task<bool> DeleteAsync(CancellationToken cancellationToken, params string[] ids)
         {
-            var result = await _index.DeleteDocumentsAsync(ids, cancellationToken: cancellationToken);
+            var result = await Index.DeleteDocumentsAsync(ids, cancellationToken: cancellationToken);
             return result.Status == TaskInfoStatus.Succeeded;
         }
 
         public async Task<SearchResult<T>> SearchAsync(string term, CancellationToken cancellationToken = default)
         {
-            var searchQuery = new SearchQuery()
-            {
-            };
-            var result = await _index.SearchAsync<T>(term, searchQuery, cancellationToken);
+            var searchQuery = new SearchQuery();
+            var result = await Index.SearchAsync<T>(term, searchQuery, cancellationToken);
             return result;
         }
 
@@ -53,7 +51,7 @@ namespace FluentSearchEngine.Services.Implementations
         {
             var term = searchQuery.Q;
             searchQuery.Q = null;
-            var result = await _index.SearchAsync<T>(term, searchQuery, cancellationToken);
+            var result = await Index.SearchAsync<T>(term, searchQuery, cancellationToken);
 
             return result;
         }
