@@ -13,7 +13,7 @@ namespace FluentSearchEngine.GenericEvaluators
         INumbersEvaluator<T>,
         IStringsEvaluator<T>,
         IBooleanEvaluator<T>,
-        IDateTimeEvaluator<T>,
+        ICollectionEvaluator<T>,
         IValue<T>
     {
         public List<string> Sort { get; set; } = new();
@@ -24,82 +24,41 @@ namespace FluentSearchEngine.GenericEvaluators
             Term = term;
         }
 
-        private void AppendAddLiteralText<TKey>(Expression<Func<T, TKey>> action)
-        {
-            var body = (MemberExpression)action.Body;
-            var propertyName = body.Member.Name;
-
-            Filter.Append($" AND {propertyName.FirstCharToLowerCase()}");
-        }
-
-        private void AppendOrLiteralText<TKey>(Expression<Func<T, TKey>> action)
-        {
-            var body = (MemberExpression)action.Body;
-            var propertyName = body.Member.Name;
-
-            Filter.Append($" OR {propertyName.FirstCharToLowerCase()}");
-        }
-
-        private void AppendLiteralText<TKey>(Expression<Func<T, TKey>> action)
-        {
-            var body = (MemberExpression)action.Body;
-            var propertyName = body.Member.Name;
-
-            Filter.Append($"{propertyName.FirstCharToLowerCase()}");
-        }
-
-        public IBooleanEvaluator<T> And(Expression<Func<T, bool>> action)
-        {
-            AppendAddLiteralText(action);
-            return this;
-        }
-
-        public INumbersEvaluator<T> And(Expression<Func<T, int>> action)
-        {
-            AppendAddLiteralText(action);
-            return this;
-        }
-
-        public IStringsEvaluator<T> And(Expression<Func<T, string>> action)
-        {
-            AppendAddLiteralText(action);
-            return this;
-        }
-
-        public IBooleanEvaluator<T> Or(Expression<Func<T, bool>> action)
-        {
-            AppendOrLiteralText(action);
-            return this;
-        }
-
-        public INumbersEvaluator<T> Or(Expression<Func<T, int>> action)
-        {
-            AppendOrLiteralText(action);
-            return this;
-        }
-
-        public IStringsEvaluator<T> Or(Expression<Func<T, string>> action)
-        {
-            AppendOrLiteralText(action);
-            return this;
-        }
         public IStringsEvaluator<T> Value(Expression<Func<T, string>> action)
         {
             AppendLiteralText(action);
             return this;
         }
+
+        public ICollectionEvaluator<T> Value<TData>(Expression<Func<T, ICollection<TData>>> action)
+        {
+            AppendLiteralText(action);
+            return this;
+        }
+
         public IBooleanEvaluator<T> Value(Expression<Func<T, bool>> action)
         {
             AppendLiteralText(action);
             return this;
         }
+
         public INumbersEvaluator<T> Value(Expression<Func<T, int>> action)
         {
             AppendLiteralText(action);
             return this;
         }
 
+        public INumbersEvaluator<T> Value(Expression<Func<T, double>> action)
+        {
+            AppendLiteralText(action);
+            return this;
+        }
 
+        public INumbersEvaluator<T> Value(Expression<Func<T, decimal>> action)
+        {
+            AppendLiteralText(action);
+            return this;
+        }
 
         public SearchQuery Evaluate(PageCriteria criteria)
         {
@@ -114,7 +73,6 @@ namespace FluentSearchEngine.GenericEvaluators
             if (Sort.Any())
                 searchQuery.Sort = Sort;
 
-
             return searchQuery;
         }
 
@@ -127,7 +85,7 @@ namespace FluentSearchEngine.GenericEvaluators
         {
             var body = (MemberExpression)action.Body;
             var propertyName = body.Member.Name;
-            Sort.Add($"{propertyName.FirstCharToLowerCase()}:asc");
+            Sort.Add($"{propertyName.FirstCharToLower()}:asc");
             return this;
         }
 
@@ -135,7 +93,25 @@ namespace FluentSearchEngine.GenericEvaluators
         {
             var body = (MemberExpression)action.Body;
             var propertyName = body.Member.Name;
-            Sort.Add($"{propertyName.FirstCharToLowerCase()}:desc");
+            Sort.Add($"{propertyName.FirstCharToLower()}:desc");
+            return this;
+        }
+
+        public SearchQueryBuilder<T> OrderBy(string propertyName)
+        {
+            Sort.Add($"{propertyName.FirstCharToLower()}:asc");
+            return this;
+        }
+
+        public SearchQueryBuilder<T> OrderByDesc(string propertyName)
+        {
+            Sort.Add($"{propertyName.FirstCharToLower()}:desc");
+            return this;
+        }
+
+        public SearchQueryBuilder<T> Where(string clause)
+        {
+            AppendLiteralText(clause);
             return this;
         }
 
@@ -151,6 +127,21 @@ namespace FluentSearchEngine.GenericEvaluators
             return this;
         }
 
+        private void AppendLiteralText<TKey>(Expression<Func<T, TKey>> action)
+        {
+            var body = (MemberExpression)action.Body;
+            var propertyName = body.Member.Name;
+            if (Filter.Length != 0)
+                Filter.Append(" AND ");
+            Filter.Append($"{propertyName.FirstCharToLower()}");
+        }
+
+        private void AppendLiteralText(string clause)
+        {
+            if (Filter.Length != 0)
+                Filter.Append(" AND ");
+            Filter.Append($"{clause.FirstCharToLower()}");
+        }
 
     }
 }
