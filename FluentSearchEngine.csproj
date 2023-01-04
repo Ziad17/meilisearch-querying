@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <Authors>Ziad M.Fathy</Authors>
     <Description>Fluent API that works as a wrapper for MeiliSearch, providing fluent filtration, sorting and pagination</Description>
     <RepositoryUrl>https://github.com/Ziad17/FluentSearchEngine</RepositoryUrl>

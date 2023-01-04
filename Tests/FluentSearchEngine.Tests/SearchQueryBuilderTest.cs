@@ -14,9 +14,9 @@ namespace FluentSearchEngine.Tests
         {
             //arrange
             var evaluator = new SearchQueryBuilder<EmployeeWithoutGeoModel>()
-                .Value(x => x.Age).IsEqual(30)
-                .And(x => x.Salary).GreaterThan(2000)
-                .And(x => x.IsDeleted).IsFalse();
+                .Value(x => x.Age).EqualTo(30)
+                .Value(x => x.Salary).GreaterThan(2000)
+                .Value(x => x.IsDeleted).IsFalse();
 
             //act
             var searchQuery = evaluator.Evaluate();
@@ -25,42 +25,6 @@ namespace FluentSearchEngine.Tests
             //assert
             searchQuery.Should().NotBeNull();
             filter.Should().Be("age = 30 AND salary > 2000 AND isDeleted = false");
-        }
-
-        [Fact]
-        public void Evaluate_WhenCalled_With_Or_OperatorsFilterOptionsShouldMatchQuery()
-        {
-            //arrange
-            var evaluator = new SearchQueryBuilder<EmployeeWithoutGeoModel>()
-                .Value(x => x.Age).IsEqual(30)
-                .Or(x => x.Salary).GreaterThan(2000)
-                .Or(x => x.IsDeleted).IsFalse();
-
-            //act
-            var searchQuery = evaluator.Evaluate();
-            var filter = (string)searchQuery.Filter;
-
-            //assert
-            searchQuery.Should().NotBeNull();
-            filter.Should().Be("age = 30 OR salary > 2000 OR isDeleted = false");
-        }
-
-        [Fact]
-        public void Evaluate_WhenCalled_WithCombinedFilterOptionsShouldMatchQuery()
-        {
-            //arrange
-            var evaluator = new SearchQueryBuilder<EmployeeWithoutGeoModel>()
-                .Value(x => x.Age).IsEqual(30)
-                .And(x => x.Salary).GreaterThan(2000)
-                .Or(x => x.IsDeleted).IsFalse();
-
-            //act
-            var searchQuery = evaluator.Evaluate();
-            var filter = (string)searchQuery.Filter;
-
-            //assert
-            searchQuery.Should().NotBeNull();
-            filter.Should().Be("age = 30 AND salary > 2000 OR isDeleted = false");
         }
 
         [Fact]
@@ -141,11 +105,6 @@ namespace FluentSearchEngine.Tests
             searchQuery.Offset.Should().NotBeNull().And.Subject.Should().Be(offset);
         }
 
-
-
-
-
     }
-
 
 }
