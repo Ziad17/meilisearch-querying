@@ -6,13 +6,13 @@ namespace FluentSearchEngine.Extensions
     {
         public static IValue<T> IsTrue<T>(this IBooleanEvaluator<T> value)
         {
-            value.Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower("= true"));
+            value.Filter.AppendWithWhiteSpace("= true");
             return (IValue<T>)value;
         }
 
         public static IValue<T> IsFalse<T>(this IBooleanEvaluator<T> value)
         {
-            value.Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower("= false"));
+            value.Filter.AppendWithWhiteSpace("= false");
             return (IValue<T>)value;
         }
     }
