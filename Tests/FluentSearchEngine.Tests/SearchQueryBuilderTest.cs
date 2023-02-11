@@ -14,7 +14,7 @@ namespace FluentSearchEngine.Tests
         {
             //arrange
             var evaluator = new SearchQueryBuilder<EmployeeWithoutGeoModel>()
-                .Value(x => x.Age).EqualTo(30)
+                .Value(x => x.Age).IsEqual(30)
                 .Value(x => x.Salary).GreaterThan(2000)
                 .Value(x => x.IsDeleted).IsFalse();
 
