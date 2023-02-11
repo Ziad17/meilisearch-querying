@@ -19,6 +19,5 @@ namespace FluentSearchEngine.Model
 
         [JsonPropertyName("lng")]
         public double Longitude { get; set; }
-
     }
 }

@@ -1,9 +1,9 @@
-﻿using FluentSearchEngine.Attributes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using FluentSearchEngine.Attributes;
 
 namespace FluentSearchEngine.Model
 {
-    public class GeoSearchModel<TKey> : SearchModel<TKey> where TKey : struct
+    public abstract class GeoSearchModel<T> : SearchModel<T>
     {
         [Sortable]
         [SearchFilter]

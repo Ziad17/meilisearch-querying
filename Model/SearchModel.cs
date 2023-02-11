@@ -1,8 +1,7 @@
 ﻿namespace FluentSearchEngine.Model
 {
-    public class SearchModel<TKey> where TKey : struct
+    public abstract class SearchModel<T>
     {
-        public TKey Id { get; set; }
-
+        public T Id { get; set; }
     }
 }
