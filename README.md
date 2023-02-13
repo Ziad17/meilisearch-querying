@@ -84,9 +84,9 @@ public class Employee : GeoSearchModel<Guid>
       .OrderByDesc(x => x.Age) //Sorting Fields
       .OrderBy(x => x.Salary)
       .WithinRadius(31.222813, 29.951325, 2000) //Filtering by geo models
-      .And(x => x.Salary).GreaterThan(2000) //Filtering by logic operators
-      .And(x => x.IsDeleted).IsTrue()
-      .Or(x => x.Age).GreaterThan(29)
+      .Value(x => x.Salary).GreaterThan(2000) //Filtering by logic operators
+      .Value(x => x.IsDeleted).IsTrue()
+      .Value(x => x.Age).GreaterThan(29)
       .Evaluate(); //Evaluating to Meilisearch search model
   
   var result = await searchService.SearchAsync(searchQuery);
@@ -138,9 +138,9 @@ public class Employee : GeoSearchModel<Guid>
               var searchQuery = new SearchQueryBuilder<Employee>()
                   .OrderByDesc(x => x.Age)
                   .Value(x => x.Salary).LowerThan(3000)
-                  .And(x => x.IsDeleted).IsFalse()
-                  .And(x => x.MonthlyTarget).GreaterThanOrEquals(20000)
-                  .Or(x => x.Age).GreaterThan(29)
+                  .Value(x => x.IsDeleted).IsFalse()
+                  .Value(x => x.MonthlyTarget).GreaterThanOrEquals(20000)
+                  .Value(x => x.Age).GreaterThan(29)
                   .Evaluate(new PageCriteria(1, 10));
   
               var result = await _searchService.SearchAsync(searchQuery);
