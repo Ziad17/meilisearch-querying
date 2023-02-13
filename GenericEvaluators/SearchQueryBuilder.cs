@@ -50,6 +50,12 @@ namespace FluentSearchEngine.GenericEvaluators
             return this;
         }
 
+        public INumbersEvaluator<T> Value(Expression<Func<T, decimal>> action)
+        {
+            AppendLiteralText(action);
+            return this;
+        }
+
         public INumbersEvaluator<T> Value(Expression<Func<T, int>> action)
         {
             AppendLiteralText(action);
