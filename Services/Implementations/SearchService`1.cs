@@ -49,6 +49,19 @@ namespace FluentSearchEngine.Services.Implementations
             return result.Status == TaskInfoStatus.Succeeded;
         }
 
+        public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken)
+        {
+            var result = await _index.GetDocumentsAsync<T>(cancellationToken: cancellationToken);
+            return result.Results.ToList();
+        }
+
+        public async Task<bool> DeleteAllAsync(CancellationToken cancellationToken)
+        {
+            var result = await _index.DeleteAllDocumentsAsync(cancellationToken: cancellationToken);
+
+            return result.Status == TaskInfoStatus.Succeeded;
+        }
+
         public async Task<T> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             return await _index.GetDocumentAsync<T>(id, cancellationToken: cancellationToken);

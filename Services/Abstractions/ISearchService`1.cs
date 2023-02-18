@@ -13,9 +13,13 @@ namespace FluentSearchEngine.Services.Abstractions
 
         public Task<T> GetAsync(string id, CancellationToken cancellationToken);
 
+        public Task<List<T>> GetAllAsync(CancellationToken cancellationToken);
+
         public Task<bool> AddAsync(T entity, CancellationToken cancellationToken);
 
         public Task<bool> DeleteAsync(CancellationToken cancellationToken, params string[] ids);
+
+        public Task<bool> DeleteAllAsync(CancellationToken cancellationToken);
 
         public Task<ISearchable<T>> SearchAsync(string term, CancellationToken cancellationToken);
 
