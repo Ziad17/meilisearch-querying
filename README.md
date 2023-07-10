@@ -3,18 +3,11 @@
 ## A fluent API that serves as a string builder to provide searching, filtering and sorting capability with using the amazing [MeiliSearch]((https://github.com/meilisearch/meilisearch))
 
 - ### Attributes
-
   To sort or filter a model, two attributes must be used in order to index the required properties in MeiliSearch Client
 
-  **[SearchFilter]** 
-
-  to make a property filterable
-
+  **[SearchFilter]**  to make a property filterable
   
-
-  **[Sortable]** 
-
-  to enable sorting using a property
+  **[Sortable]** to enable sorting using a property
 
 - ### Model Base
 
