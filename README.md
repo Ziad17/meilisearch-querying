@@ -2,9 +2,6 @@
 
 
 
-[TOC]
-
-
 
 ### Introduction
 
