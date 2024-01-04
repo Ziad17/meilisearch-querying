@@ -18,15 +18,38 @@ namespace FluentSearchEngine.Extensions
             return originalText;
         }
 
-        public static IValue<T> Like<T>(this IStringsEvaluator<T> value, string text)
-        {
-            value.Filter.Append(AddWhiteSpaceBeforeToLower($"LIKE '{text}'"));
-            return (IValue<T>)value;
-        }
-
         public static IValue<T> ExactSame<T>(this IStringsEvaluator<T> value, string text)
         {
             value.Filter.Append(AddWhiteSpaceBeforeToLower($"= '{text}'"));
+            return (IValue<T>)value;
+        }
+        
+        public static IValue<T> NotExactSame<T>(this IStringsEvaluator<T> value, string text)
+        {
+            value.Filter.Append(AddWhiteSpaceBeforeToLower($"!= '{text}'"));
+            return (IValue<T>)value;
+        }
+
+        public static IValue<T> IsEmpty<T>(this IStringsEvaluator<T> value)
+        {
+            value.Filter.Append(AddWhiteSpaceBeforeToLower("IS EMPTY"));
+            return (IValue<T>)value;
+        }
+
+        public static IValue<T> IsNotEmpty<T>(this IStringsEvaluator<T> value)
+        {
+            value.Filter.Append(AddWhiteSpaceBeforeToLower("IS NOT EMPTY"));
+            return (IValue<T>)value;
+        }
+        public static IValue<T> IsNull<T>(this IStringsEvaluator<T> value)
+        {
+            value.Filter.Append(AddWhiteSpaceBeforeToLower("IS NULL"));
+            return (IValue<T>)value;
+        }
+
+        public static IValue<T> IsNotNull<T>(this IStringsEvaluator<T> value)
+        {
+            value.Filter.Append(AddWhiteSpaceBeforeToLower("IS NOT NULL"));
             return (IValue<T>)value;
         }
     }
