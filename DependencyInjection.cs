@@ -9,20 +9,43 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentSearchEngine.Configurations;
 using FluentSearchEngine.Services.Abstractions;
 using FluentSearchEngine.Model;
-using Microsoft.Extensions.Options;
 
 namespace FluentSearchEngine
 {
+    //TODO:: enable options based pattern to configure collective index
+    //TODO:: enable pagination max hit modification
+
     public static class DependencyInjection
     {
-        //TODO:: enable options based pattern to configure collective index
-        //TODO:: enable pagination max hit modification
-        public static void ResolveFluentFiltersFromAssembly(this MeilisearchClient client, IOptions<SearchServiceOptions> options, params Assembly[] assemblies)
+        public static void ResolveFluentFiltersFromAssembly(this MeilisearchClient client, Assembly[] assemblies, SearchServiceOptions options = null)
         {
-            client.CreateIndexAsync(options.Value.CollectiveHubName).Wait();
-            var types = assemblies.SelectMany(s => s.GetTypes())
-                .Where(x => typeof(SearchModel<>).IsAssignableFrom(x) && !x.IsAbstract);
+            if (options != null)
+                client.CreateIndexAsync(options.CollectiveHubName).Wait();
 
+            var types = assemblies.SelectMany(s => s.GetTypes())
+                .Where(x => x.IsClass && !x.IsAbstract && x.BaseType is { IsGenericType: true } &&
+                            (x.BaseType.GetGenericTypeDefinition() == typeof(SearchModel<>) || x.BaseType.GetGenericTypeDefinition() == typeof(GeoSearchModel<>)));
+
+            EnrichAttributes(types, client, options);
+        }
+
+        public static void ResolveFluentFiltersFromAssembly(this MeilisearchClient client, SearchServiceOptions options = null)
+        {
+            var types = Assembly.GetCallingAssembly().GetTypes()
+                .Where(x => x.IsClass && !x.IsAbstract && x.BaseType is { IsGenericType: true } &&
+                            (x.BaseType.GetGenericTypeDefinition() == typeof(SearchModel<>) || x.BaseType.GetGenericTypeDefinition() == typeof(GeoSearchModel<>)));
+
+            EnrichAttributes(types, client, options);
+        }
+
+        public static void AddGenericSearchService(this IServiceCollection services, MeilisearchClient client)
+        {
+            services.AddSingleton(client);
+            services.AddScoped(typeof(ISearchService<,>), typeof(SearchService<,>));
+        }
+
+        private static void EnrichAttributes(IEnumerable<Type> types, MeilisearchClient client, SearchServiceOptions options = null)
+        {
             foreach (var type in types)
             {
                 var sortableProperties = type.GetProperties()
@@ -37,12 +60,15 @@ namespace FluentSearchEngine
                 client.CreateIndexAsync(indexName).Wait();
                 var index = client.Index(indexName);
 
-                var paginationSettings = new Pagination()
+                if (options != null)
                 {
-                    MaxTotalHits = options.Value.MaxTotalHits
-                };
+                    var paginationSettings = new Pagination()
+                    {
+                        MaxTotalHits = options.MaxTotalHits
+                    };
 
-                index.UpdatePaginationAsync(paginationSettings).Wait();
+                    index.UpdatePaginationAsync(paginationSettings).Wait();
+                }
 
                 if (sortableProperties.Any())
                     index.UpdateSortableAttributesAsync(sortableProperties).Wait();
@@ -52,9 +78,5 @@ namespace FluentSearchEngine
             }
         }
 
-        public static void AddGenericSearchService(this IServiceCollection services)
-        {
-            services.AddScoped(typeof(ISearchService<,>), typeof(SearchService<,>));
-        }
     }
 }

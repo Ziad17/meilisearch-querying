@@ -49,13 +49,13 @@ namespace FluentSearchEngine.Services.Implementations
             return result.Status == TaskInfoStatus.Succeeded;
         }
 
-        public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             var result = await _index.GetDocumentsAsync<T>(cancellationToken: cancellationToken);
             return result.Results.ToList();
         }
 
-        public async Task<bool> DeleteAllAsync(CancellationToken cancellationToken)
+        public async Task<bool> DeleteAllAsync(CancellationToken cancellationToken = default)
         {
             var result = await _index.DeleteAllDocumentsAsync(cancellationToken: cancellationToken);
 
@@ -67,7 +67,7 @@ namespace FluentSearchEngine.Services.Implementations
             return await _index.GetDocumentAsync<T>(id, cancellationToken: cancellationToken);
         }
 
-        public async Task<bool> DeleteAsync(CancellationToken cancellationToken, params string[] ids)
+        public async Task<bool> DeleteAsync(CancellationToken cancellationToken = default, params string[] ids)
         {
             var result = await _index.DeleteDocumentsAsync(ids, cancellationToken: cancellationToken);
 
@@ -104,16 +104,16 @@ namespace FluentSearchEngine.Services.Implementations
         public async Task AddToCollectiveIndexAsync(List<T> entities, CancellationToken cancellationToken)
         {
             var models = entities.Select(model =>
-                new IndicesModel<TKey>(model.Id, JsonSerializer.Serialize(model), typeof(T).Name.Pluralize()));
+                new IndicesModel(model.Id.ToString(), JsonSerializer.Serialize(model), typeof(T).Name.Pluralize()));
 
             await _collectiveIndex.AddDocumentsAsync(models, cancellationToken: cancellationToken);
         }
 
         public async Task AddToCollectiveIndexAsync(T entity, CancellationToken cancellationToken)
         {
-            var model = new IndicesModel<TKey>(entity.Id, JsonSerializer.Serialize(entity), typeof(T).Name.Pluralize());
+            var model = new IndicesModel(entity.Id.ToString(), JsonSerializer.Serialize(entity), typeof(T).Name.Pluralize());
 
-            await _collectiveIndex.AddDocumentsAsync(new List<IndicesModel<TKey>>() { model }, cancellationToken: cancellationToken);
+            await _collectiveIndex.AddDocumentsAsync(new List<IndicesModel>() { model }, cancellationToken: cancellationToken);
         }
 
         public async Task DeleteFromCollectiveAsync(CancellationToken cancellationToken, params string[] ids)
