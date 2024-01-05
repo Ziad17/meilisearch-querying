@@ -1,11 +1,6 @@
-
-
-
-
-
 ### Introduction
 
-A fluent API that serves as a string builder to provide searching, filtering and sorting capability with using the amazing [MeiliSearch]((https://github.com/meilisearch/meilisearch))
+A fluent API that serves as a string builder to provide searching, filtering and sorting capability with using the amazing [MeiliSearch]((https://github.com/meilisearch/meilisearch)), the aim is to provide a fluent interface that works on top of [meilisearch-dotnet](https://github.com/meilisearch/meilisearch-dotnet)
 
 ### Getting Started
 
@@ -72,7 +67,7 @@ public class Employee : GeoSearchModel<Guid>
 
 
 
-##### Simple  Client Usage
+##### Manual Client Setup
 
 ```c#
 //initiate the client
@@ -97,7 +92,7 @@ var searchQuery = new SearchQueryBuilder<Employee>("John") //can discard the sea
 var result = await searchService.SearchAsync(searchQuery);
 ```
 
-##### Web  Application Usage
+##### Quick Client Setup
 
 Nuget Installation
 
@@ -108,17 +103,19 @@ Install-Package FluentSearchEngine
 Program.cs
 
 ```c#
-//initiate the client
-var client = new MeilisearchClient("http://localhost:7700", "4ebc913989554d17acea2ee981287a26");
+// with options
+builder.Services.AddSearchQueryBuilder(c =>
+{
+    c.Host = "http://localhost:7700";
+    c.Key = "API_KEY";
+    c.CollectiveHubName = "IndexBucket";
+    c.MaxTotalHits = 999;
+    c.UseCrossSearch = true;
+});
 
-//add usage for SearchService<T>
-builder.Services.AddGenericSearchService();
+//or default
+builder.Services.AddSearchQueryBuilder("http://localhost:7700", "API_KEY");
 
-//resolve usage of both SearchFilter and Sortable attributes 
-client.ResolveFluentFiltersFromAssembly(AppDomain.CurrentDomain.GetAssemblies());
-
-//inject the client
-builder.Services.AddSingleton(client);
 ```
 
 EmployeesController.cs
@@ -136,7 +133,7 @@ EmployeesController.cs
             _searchService = searchService;
         }
 
-        [HttpGet("GetModels")]
+        [HttpGet("/GetModels")]
         public async Task<IActionResult> Get()
         {
             var searchQuery = new SearchQueryBuilder<Employee>()
@@ -156,4 +153,3 @@ EmployeesController.cs
 
 
 ![image](https://user-images.githubusercontent.com/36865821/201401382-da52a451-228d-407b-aa44-1f27e76308ed.png)
-
