@@ -12,7 +12,7 @@
     <PackageTags>Search, Search Engine, Fluent, Filtering, Index</PackageTags>
     <PackageReleaseNotes>Beta Version</PackageReleaseNotes>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Version>2.2.0</Version>
+    <Version>2.3.0</Version>
 
   </PropertyGroup>
 
