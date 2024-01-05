@@ -6,7 +6,7 @@ namespace FluentSearchEngine.Extensions
     {
         public static IValue<T> Contains<T, TData>(this ICollectionEvaluator<T> value, TData itemToSearch)
         {
-            value.Filter.Append(StringExtensions.AddWhiteSpaceBeforeToLower($"= '{itemToSearch}'"));
+            value.Filter.Append($" = '{itemToSearch}'");
             return (IValue<T>)value;
         }
     }

@@ -55,7 +55,7 @@ namespace FluentSearchEngine.Tests
 
             //assert
             searchQuery.Should().NotBeNull();
-            filter.Should().Be("_geoRadius(21.654640,21.241000,2000)");
+            filter.Should().Be("_geoRadius(21.654640, 21.241000, 2000)");
         }
 
         [Fact]

@@ -1,6 +1,6 @@
 ﻿namespace FluentSearchEngine.GenericEvaluators.Interfaces
 {
-    public interface IStringsEvaluator<T> : IGenericEvaluator<T>
+    public interface IGenericEvaluator<T> : IFilter
     {
     }
 }

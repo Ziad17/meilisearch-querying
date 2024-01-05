@@ -1,6 +1,6 @@
 ﻿namespace FluentSearchEngine.GenericEvaluators.Interfaces
 {
-    public interface INumbersEvaluator<T> : IFilter
+    public interface INumbersEvaluator<T> : IGenericEvaluator<T>
     {
     }
 }

@@ -12,21 +12,27 @@ namespace FluentSearchEngine.Extensions
             return str;
         }
 
-        public static string AddWhiteSpaceBeforeToLower(object value)
+        public static IValue<T> ExactSame<T>(this IStringsEvaluator<T> value, string text)
         {
-            var originalText = " " + value.ToString()!.FirstCharToLowerCase();
-            return originalText;
+            value.Filter.Append($" = '{text}'");
+            return (IValue<T>)value;
         }
-
-        public static IValue<T> Like<T>(this IStringsEvaluator<T> value, string text)
+        
+        public static IValue<T> NotExactSame<T>(this IStringsEvaluator<T> value, string text)
         {
-            value.Filter.Append(AddWhiteSpaceBeforeToLower($"LIKE '{text}'"));
+            value.Filter.Append($" != '{text}'");
             return (IValue<T>)value;
         }
 
-        public static IValue<T> ExactSame<T>(this IStringsEvaluator<T> value, string text)
+        public static IValue<T> IsEmpty<T>(this IStringsEvaluator<T> value)
         {
-            value.Filter.Append(AddWhiteSpaceBeforeToLower($"= '{text}'"));
+            value.Filter.Append(" IS EMPTY");
+            return (IValue<T>)value;
+        }
+
+        public static IValue<T> IsNotEmpty<T>(this IStringsEvaluator<T> value)
+        {
+            value.Filter.Append(" IS NOT EMPTY");
             return (IValue<T>)value;
         }
     }
