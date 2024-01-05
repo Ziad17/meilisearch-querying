@@ -21,7 +21,8 @@ namespace FluentSearchEngine
         {
             client.CreateIndexAsync(options.Value.CollectiveHubName).Wait();
             var types = assemblies.SelectMany(s => s.GetTypes())
-                .Where(x => typeof(SearchModel<>).IsAssignableFrom(x) && !x.IsAbstract);
+                .Where(x => x.IsClass && !x.IsAbstract && x.BaseType is { IsGenericType: true } &&
+                            (x.BaseType.GetGenericTypeDefinition() == typeof(SearchModel<>) || x.BaseType.GetGenericTypeDefinition() == typeof(GeoSearchModel<>)));
 
             foreach (var type in types)
             {
@@ -52,8 +53,65 @@ namespace FluentSearchEngine
             }
         }
 
-        public static void AddGenericSearchService(this IServiceCollection services)
+        public static void ResolveFluentFiltersFromAssembly(this MeilisearchClient client, params Assembly[] assemblies)
         {
+            var types = assemblies.SelectMany(s => s.GetTypes())
+                .Where(x => x.IsClass && !x.IsAbstract && x.BaseType is { IsGenericType: true } &&
+                            (x.BaseType.GetGenericTypeDefinition() == typeof(SearchModel<>) || x.BaseType.GetGenericTypeDefinition() == typeof(GeoSearchModel<>)));
+
+            foreach (var type in types)
+            {
+                var sortableProperties = type.GetProperties()
+                    .Where(x => x.IsDefined(typeof(Sortable), true))
+                    .Select(x => x.IsDefined(typeof(JsonPropertyNameAttribute), true) ? x.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name : x.Name.FirstCharToLowerCase()).ToList();
+
+                var filterableProperties = type.GetProperties()
+                    .Where(x => x.IsDefined(typeof(SearchFilter), true))
+                    .Select(x => x.IsDefined(typeof(JsonPropertyNameAttribute), true) ? x.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name : x.Name.FirstCharToLowerCase()).ToList();
+
+                var indexName = type.Name.Pluralize();
+                client.CreateIndexAsync(indexName).Wait();
+                var index = client.Index(indexName);
+
+                if (sortableProperties.Any())
+                    index.UpdateSortableAttributesAsync(sortableProperties).Wait();
+
+                if (filterableProperties.Any())
+                    index.UpdateFilterableAttributesAsync(filterableProperties).Wait();
+            }
+        }
+
+        public static void ResolveFluentFiltersFromAssembly(this MeilisearchClient client)
+        {
+            var types = Assembly.GetCallingAssembly().GetTypes()
+                .Where(x => x.IsClass && !x.IsAbstract && x.BaseType is { IsGenericType: true } &&
+                            (x.BaseType.GetGenericTypeDefinition() == typeof(SearchModel<>) || x.BaseType.GetGenericTypeDefinition() == typeof(GeoSearchModel<>)));
+
+            foreach (var type in types)
+            {
+                var sortableProperties = type.GetProperties()
+                    .Where(x => x.IsDefined(typeof(Sortable), true))
+                    .Select(x => x.IsDefined(typeof(JsonPropertyNameAttribute), true) ? x.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name : x.Name.FirstCharToLowerCase()).ToList();
+
+                var filterableProperties = type.GetProperties()
+                    .Where(x => x.IsDefined(typeof(SearchFilter), true))
+                    .Select(x => x.IsDefined(typeof(JsonPropertyNameAttribute), true) ? x.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name : x.Name.FirstCharToLowerCase()).ToList();
+
+                var indexName = type.Name.Pluralize();
+                client.CreateIndexAsync(indexName).Wait();
+                var index = client.Index(indexName);
+
+                if (sortableProperties.Any())
+                    index.UpdateSortableAttributesAsync(sortableProperties).Wait();
+
+                if (filterableProperties.Any())
+                    index.UpdateFilterableAttributesAsync(filterableProperties).Wait();
+            }
+        }
+
+        public static void AddGenericSearchService(this IServiceCollection services, MeilisearchClient client)
+        {
+            services.AddSingleton(client);
             services.AddScoped(typeof(ISearchService<,>), typeof(SearchService<,>));
         }
     }
