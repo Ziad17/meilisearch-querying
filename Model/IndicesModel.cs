@@ -1,8 +1,8 @@
 ﻿namespace FluentSearchEngine.Model
 {
-    public class IndicesModel<T> : SearchModel<T>
+    public class IndicesModel : SearchModel<string>
     {
-        public IndicesModel(T id, string data, string index)
+        public IndicesModel(string id, string data, string index)
         {
             Id = id;
             Data = data;
